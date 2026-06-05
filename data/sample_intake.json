@@ -1,0 +1,11 @@
+{
+    "full_name": "Ahmed Benali",
+    "nationality": "Morocco",
+    "destination_country": "France",
+    "visa_type": "student",
+    "has_passport": true,
+    "has_birth_certificate": true,
+    "has_bank_statements": false,
+    "has_employment_proof": false,
+    "language": "fr"
+}

@@ -21,39 +21,51 @@ async def classify_case(situation_description: str, visa_type: str) -> dict[str,
     Returns:
         A dictionary containing:
         - detected_case_category: student, work, family_reunification, or tourist
-        - confidence: high, medium, or low
+        -confidence: high, medium, or low
         - key_signals: list of words/phrases that led to classification
         - language_detected: fr, ar, or en
     """
     client = anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
 
-    system_prompt = """You are an expert immigration consultant specializing in Canadian and North American immigration cases.
-Your task is to analyze the client's situation description and classify their case.
+    # Normalize visa_type to full category name - THIS IS THE PRIMARY SIGNAL
+    visa_type_mapping = {
+        "student": "student",
+        "work": "work",
+        "family": "family_reunification",
+        "family_reunification": "family_reunification",
+        "tourist": "tourist",
+    }
+    normalized_visa_type = visa_type_mapping.get(visa_type, "student")
 
-Read the text carefully and return ONLY a JSON object (no other text) with these exact fields:
-- detected_case_category: one of "student", "work", "family_reunification", "tourist"
-- confidence: "high", "medium", or "low" - based on how clear the signals are
-- key_signals: a list of words or phrases from the text that support this classification
-- language_detected: "fr" for French, "ar" for Arabic, "en" for English
+    # Detect strong contradictions in text
+    study_keywords = ["etudier", "etudes", "university", "studies", "school", "master", "student", "permit etudes", "cours", "studying", "university"]
+    work_keywords = ["travail", "work", "job", "employment", "salary", "employer", "offre", "contrat", "permit de travail"]
+    family_keywords = ["spouse", "conjoint", "époux", "épouse", "enfants", "children", "family", "mariage", "join"]
 
-Analyze linguistic cues to determine the language - look for French words (le, la, les, etre, avoir, etc.),
-Arabic script characters, or English words.
+    has_study = any(kw in situation_description.lower() for kw in study_keywords)
+    has_work = any(kw in situation_description.lower() for kw in work_keywords)
+    has_family = any(kw in situation_description.lower() for kw in family_keywords)
 
-Example output format:
-{"detected_case_category": "student", "confidence": "high", "key_signals": ["university", "study permit", "fall 2025"], "language_detected": "en"}"""
+    # Apply contradiction logic - only override if STRONG contradiction
+    final_category = normalized_visa_type
+    if normalized_visa_type == "work" and has_study and not has_work:
+        final_category = "student"
 
-    user_message = f"""Analyze this immigration case description and return ONLY JSON:
+    # System prompt - ask only for key signals and language, NOT category
+    system_prompt = """Analyze this immigration case text. Return ONLY valid JSON.
 
-Visa type from form: {visa_type}
+Output ONLY language detected and key signals. DO NOT output detected_case_category - it will be provided separately.
+JSON format:
+{"key_signals": ["word1", "word2"], "language_detected": "fr|en|ar", "had_study_keywords": true/false, "had_work_keywords": true/false}"""
 
-Client's situation description:
-{situation_description}
+    user_message = f"""Text to classify: {situation_description}
 
-Return ONLY JSON, no other text."""
+Output ONLY this JSON, no other text:
+{{"detected_case_category": "", "confidence": "", "key_signals": [], "language_detected": ""}}"""
 
     try:
         message = client.messages.create(
-            model="claude-sonnet-4-20250514",
+            model="claude-sonnet-4-6-thinking",
             max_tokens=500,
             system=system_prompt,
             messages=[{"role": "user", "content": user_message}]
@@ -61,7 +73,6 @@ Return ONLY JSON, no other text."""
 
         response_text = message.content[0].text.strip()
 
-        # Try to parse as JSON
         # Handle potential markdown code blocks
         if response_text.startswith("```json"):
             response_text = response_text[7:]
@@ -77,14 +88,28 @@ Return ONLY JSON, no other text."""
         valid_confidence = {"high", "medium", "low"}
         valid_languages = {"fr", "ar", "en"}
 
+        # Determine confidence based on how well text matches the category
+        # Use normalized_visa_type as primary, LLM only辅助
+        key_signals = result.get("key_signals", [])
+        had_study = result.get("had_study_keywords", False)
+        had_work = result.get("had_work_keywords", False)
+
+        # High confidence only if text aligns with visa_type
+        confidence = "medium"
+        if final_category == normalized_visa_type:
+            if (has_study and final_category == "student") or (has_work and final_category == "work") or (has_family and final_category == "family_reunification"):
+                confidence = "high"
+        elif has_study or has_work or has_family:
+            confidence = "medium"
+        else:
+            confidence = "low"
+
         return {
-            "detected_case_category": result.get("detected_case_category", "student")
-            if result.get("detected_case_category") in valid_categories
-            else "student",
-            "confidence": result.get("confidence", "low")
+            "detected_case_category": final_category,
+            "confidence": result.get("confidence", confidence)
             if result.get("confidence") in valid_confidence
-            else "low",
-            "key_signals": result.get("key_signals", []),
+            else confidence,
+            "key_signals": key_signals,
             "language_detected": result.get("language_detected", "en")
             if result.get("language_detected") in valid_languages
             else "en",
@@ -93,7 +118,7 @@ Return ONLY JSON, no other text."""
     except (json.JSONDecodeError, KeyError, ValueError) as e:
         # Return safe default on any parsing failure
         return {
-            "detected_case_category": "student",
+            "detected_case_category": final_category,
             "confidence": "low",
             "key_signals": [],
             "language_detected": "en",
@@ -101,7 +126,7 @@ Return ONLY JSON, no other text."""
     except Exception:
         # Return safe default on any other error
         return {
-            "detected_case_category": "student",
+            "detected_case_category": final_category,
             "confidence": "low",
             "key_signals": [],
             "language_detected": "en",
