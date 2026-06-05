@@ -1,10 +1,7 @@
 """Case file builder that orchestrates the classification and document detection."""
 
 import json
-import os
 from datetime import datetime
-
-import anthropic
 
 from agent.classifier import classify_case
 from agent.schemas import CaseFile, CaseCategory, IntakeForm
@@ -81,14 +78,13 @@ async def build_case_file(form: IntakeForm) -> CaseFile:
         form.visa_type.value, CaseCategory.OTHER
     )
 
-    # Step 4: Generate case summary using Claude API
-    case_summary = await _generate_case_summary(
+    # Step 4: Generate case summary using Python template
+    case_summary = _generate_case_summary(
         client_name=form.full_name,
         nationality=form.nationality,
         destination=form.destination_country,
         visa_type=form.visa_type.value,
         missing_documents=missing_documents,
-        situation_description=form.situation_description,
         language=detected_language,
     )
 
@@ -107,16 +103,15 @@ async def build_case_file(form: IntakeForm) -> CaseFile:
     )
 
 
-async def _generate_case_summary(
+def _generate_case_summary(
     client_name: str,
     nationality: str,
     destination: str,
     visa_type: str,
     missing_documents: list[str],
-    situation_description: str,
     language: str = "en",
 ) -> str:
-    """Generate a professional case summary in the detected language using Claude API.
+    """Generate a case summary using Python templates.
 
     Args:
         client_name: Client's full name.
@@ -124,51 +119,30 @@ async def _generate_case_summary(
         destination: Destination country.
         visa_type: Type of visa.
         missing_documents: List of missing document names.
-        situation_description: Client's free-text situation description.
         language: Detected language (fr, ar, or en).
 
     Returns:
-        A 3-4 sentence professional summary in the detected language.
+        A professional summary in the detected language.
     """
-    client = anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
+    # Format missing documents
+    docs_list = ", ".join(missing_documents) if missing_documents else "none"
 
-    # Language-specific prompt starter (starts the message in the target language)
-    prompt_starters = {
-        "ar": "اكتب ملخصاً مهنياً بالعربية لهذا الملف:",
-        "fr": "Rédigez un résumé professionnel en français pour ce dossier:",
-        "en": "Write a professional summary in English for this file:",
+    # Language-specific templates
+    templates = {
+        "fr": "{client_name} est un(e) ressortissant(e) {nationality} souhaitant obtenir un visa {visa_type} pour {destination}. Documents manquants: {missing_docs}. Veuillez rassembler ces documents avant de soumettre le dossier.",
+        "ar": "{client_name} مواطن/ة من {nationality} يرغب في الحصول على تأشيرة {visa_type} إلى {destination}. الوثائق الناقصة: {missing_docs}. يرجى جمع هذه الوثائق قبل تقديم الملف.",
+        "en": "{client_name} is a {nationality} national seeking a {visa_type} visa to {destination}. Missing documents: {missing_docs}. Please gather these documents before submitting the file.",
     }
-    prompt_starter = prompt_starters.get(language, prompt_starters["en"])
 
-    # Format missing documents for the prompt
-    docs_list = ", ".join(missing_documents) if missing_documents else "aucun document"
+    template = templates.get(language, templates["en"])
 
-    prompt = f"""{prompt_starter}
-
-Client: {client_name}
-Nationalité: {nationality}
-Destination: {destination}
-Type de visa: {visa_type}
-Description: {situation_description}
-Documents manquants: {docs_list}
-
-Résumé (3-4 phrases max):"""
-
-    message = client.messages.create(
-        model="claude-sonnet-4-6-thinking",
-        max_tokens=300,
-        messages=[{"role": "user", "content": prompt}]
+    return template.format(
+        client_name=client_name,
+        nationality=nationality,
+        destination=destination,
+        visa_type=visa_type,
+        missing_docs=docs_list,
     )
-
-    summary = message.content[0].text.strip()
-
-    # Clean up if returned with markdown
-    if summary.startswith("```"):
-        summary = summary.split("```")[1].strip()
-    if summary.startswith("fr"):
-        summary = summary[2:].strip()
-
-    return summary
 
 
 def _determine_next_step(missing_documents: list[str], language: str = "en") -> str:
