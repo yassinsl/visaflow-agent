@@ -110,9 +110,9 @@ class CaseFile(BaseModel):
         ...,
         description="Summary of the case written by the agent"
     )
-    recommended_next_step: RecommendedNextStep = Field(
+    recommended_next_step: str = Field(
         ...,
-        description="Recommended next step for this case"
+        description="Recommended next step as human-readable sentence in the client's language"
     )
 
     # Metadata

@@ -7,7 +7,7 @@ from datetime import datetime
 import anthropic
 
 from agent.classifier import classify_case
-from agent.schemas import CaseFile, CaseCategory, RecommendedNextStep, IntakeForm
+from agent.schemas import CaseFile, CaseCategory, IntakeForm
 from agent.checklist import get_required_documents
 
 
@@ -44,6 +44,9 @@ async def build_case_file(form: IntakeForm) -> CaseFile:
         situation_description=form.situation_description,
         visa_type=form.visa_type.value,
     )
+
+    # Extract detected language for multilingual support
+    detected_language = classification.get("language_detected", "en")
 
     # Step 2: Determine required documents based on visa type
     required_docs = get_required_documents(form.visa_type, form.destination_country)
@@ -86,10 +89,11 @@ async def build_case_file(form: IntakeForm) -> CaseFile:
         visa_type=form.visa_type.value,
         missing_documents=missing_documents,
         situation_description=form.situation_description,
+        language=detected_language,
     )
 
     # Step 5: Determine recommended next step
-    next_step = _determine_next_step(missing_documents)
+    next_step = _determine_next_step(missing_documents, detected_language)
 
     return CaseFile(
         client_name=form.full_name,
@@ -110,8 +114,9 @@ async def _generate_case_summary(
     visa_type: str,
     missing_documents: list[str],
     situation_description: str,
+    language: str = "en",
 ) -> str:
-    """Generate a professional case summary in French using Claude API.
+    """Generate a professional case summary in the detected language using Claude API.
 
     Args:
         client_name: Client's full name.
@@ -120,16 +125,24 @@ async def _generate_case_summary(
         visa_type: Type of visa.
         missing_documents: List of missing document names.
         situation_description: Client's free-text situation description.
+        language: Detected language (fr, ar, or en).
 
     Returns:
-        A 3-4 sentence professional summary in French.
+        A 3-4 sentence professional summary in the detected language.
     """
     client = anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
+
+    # Language instructions
+    lang_instruction = {
+        "fr": "en français",
+        "ar": "بالعربية",
+        "en": "in English",
+    }.get(language, "in English")
 
     # Format missing documents for the prompt
     docs_list = ", ".join(missing_documents) if missing_documents else "aucun document"
 
-    prompt = f"""Rédigez un résumé professionnel en français pour ce dossier:
+    prompt = f"""Rédigez un résumé professionnel {lang_instruction} pour ce dossier:
 
 Client: {client_name}
 Nationalité: {nationality}
@@ -157,22 +170,34 @@ Résumé (3-4 phrases max):"""
     return summary
 
 
-def _determine_next_step(missing_documents: list[str]) -> RecommendedNextStep:
-    """Determine the recommended next step based on missing documents.
+def _determine_next_step(missing_documents: list[str], language: str = "en") -> str:
+    """Determine the recommended next step in the client's language.
 
     Args:
         missing_documents: List of missing document names.
+        language: Detected language (fr, ar, or en).
 
     Returns:
-        Recommended next step enum value.
+        Human-readable next step sentence in the detected language.
     """
-    # If too many documents missing, need to gather more
-    if len(missing_documents) >= 4:
-        return RecommendedNextStep.GATHER_MORE_DOCS
+    # Multilingual next step messages
+    next_step_messages = {
+        "fr": {
+            "gather": "Rassembler les documents manquants avant de soumettre le dossier",
+            "submit": "Le dossier est prêt à être soumis",
+        },
+        "ar": {
+            "gather": "جمع الوثائق الناقصة قبل تقديم الملف",
+            "submit": "الملف جاهز للتقديم",
+        },
+        "en": {
+            "gather": "Gather the missing documents before submitting the file",
+            "submit": "The file is ready to be submitted",
+        },
+    }
 
-    # If only a few documents missing, still gather more
+    messages = next_step_messages.get(language, next_step_messages["en"])
+
     if len(missing_documents) >= 1:
-        return RecommendedNextStep.GATHER_MORE_DOCS
-
-    # Otherwise, ready to submit
-    return RecommendedNextStep.SUBMIT_APPLICATION
+        return messages["gather"]
+    return messages["submit"]
