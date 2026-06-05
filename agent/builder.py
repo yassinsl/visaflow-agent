@@ -8,6 +8,7 @@ import anthropic
 
 from agent.classifier import classify_case
 from agent.schemas import CaseFile, CaseCategory, RecommendedNextStep, IntakeForm
+from agent.checklist import get_required_documents
 
 
 # Document field to name mapping
@@ -44,11 +45,33 @@ async def build_case_file(form: IntakeForm) -> CaseFile:
         visa_type=form.visa_type.value,
     )
 
-    # Step 2: Detect missing documents (any False field = missing)
-    missing_documents = []
-    for field_name, doc_name in DOCUMENT_FIELDS.items():
-        if not getattr(form, field_name, False):
-            missing_documents.append(doc_name)
+    # Step 2: Determine required documents based on visa type
+    required_docs = get_required_documents(form.visa_type, form.destination_country)
+
+    # Map form fields to document names
+    form_doc_mapping: dict[str, str] = {
+        "has_passport": "passport",
+        "has_birth_certificate": "birth_certificate",
+        "has_bank_statements": "bank_statements",
+        "has_employment_proof": "employment_proof",
+        "has_housing_proof": "housing_proof",
+        "has_acceptance_letter": "acceptance_letter",
+        "has_language_certificate": "language_certificate",
+        "has_work_contract": "work_contract",
+        "has_marriage_certificate": "marriage_certificate",
+        "has_sponsor_documents": "sponsor_documents",
+        "has_travel_insurance": "travel_insurance",
+        "has_accommodation_proof": "accommodation_proof",
+        "has_return_ticket": "return_ticket",
+    }
+
+    # Find missing documents by checking what's required vs what's provided
+    provided_docs: set[str] = set()
+    for field_name, doc_name in form_doc_mapping.items():
+        if getattr(form, field_name, False):
+            provided_docs.add(doc_name)
+
+    missing_documents = [doc for doc in required_docs if doc not in provided_docs]
 
     # Step 3: Map visa_type to case category
     case_category = VISA_TYPE_TO_CATEGORY.get(

@@ -12,7 +12,7 @@ class VisaType(str, Enum):
 
     STUDENT = "student"
     WORK = "work"
-    FAMILY = "family"
+    FAMILY_REUNIFICATION = "family_reunification"
     TOURIST = "tourist"
 
 
