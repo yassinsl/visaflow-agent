@@ -132,17 +132,18 @@ async def _generate_case_summary(
     """
     client = anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
 
-    # Language instructions
-    lang_instruction = {
-        "fr": "en français",
-        "ar": "بالعربية",
-        "en": "in English",
-    }.get(language, "in English")
+    # Language-specific prompt starter (starts the message in the target language)
+    prompt_starters = {
+        "ar": "اكتب ملخصاً مهنياً بالعربية لهذا الملف:",
+        "fr": "Rédigez un résumé professionnel en français pour ce dossier:",
+        "en": "Write a professional summary in English for this file:",
+    }
+    prompt_starter = prompt_starters.get(language, prompt_starters["en"])
 
     # Format missing documents for the prompt
     docs_list = ", ".join(missing_documents) if missing_documents else "aucun document"
 
-    prompt = f"""Rédigez un résumé professionnel {lang_instruction} pour ce dossier:
+    prompt = f"""{prompt_starter}
 
 Client: {client_name}
 Nationalité: {nationality}
