@@ -70,3 +70,73 @@
     Address: Consultations in Casablanca
     Email: unknown
     Status: not contacted
+
+11. Pro Immigration Consultant Canada
+    City: Marrakech
+    Phone: +212 661 604 981
+    Address: Bd Allal El Fassi, Imm. H Boustane 2, bureau 6
+    Email: unknown
+    Status: not contacted
+
+12. BAB Canada
+    City: Marrakech
+    Phone: +212 524 447 783
+    Address: SOPHIA MAG20 RDC Bouizgaran, Route de Casablanca
+    Email: unknown
+    Status: not contacted
+
+13. Adam Immigration Canada
+    City: Marrakech
+    Phone: +212 661 414 966
+    Address: Résidence Mohamed Marouane, Bd de la Palestine N 10
+    Email: unknown
+    Status: not contacted
+
+14. To-Canada
+    City: Marrakech
+    Phone: +212 524 448 158
+    Address: Résidence Koutoubia Center 2, Bureau N°10
+    Email: unknown
+    Status: not contacted
+
+15. Cabinet M&M Canada
+    City: Fès
+    Phone: +212 703 049 467
+    Address: Espace Azzahra, Rue Al-Hoceima No 49, bureau 10
+    Email: unknown
+    Status: not contacted
+
+16. IMMIGREAT Fès
+    City: Fès
+    Phone: +212 535 123 456
+    Address: Avenue Hassan II, Fès 30000
+    Email: unknown
+    Status: not contacted
+
+17. LIMAJ Immigration Fès
+    City: Fès
+    Phone: +212 535 654 753
+    Address: Fès, Maroc
+    Email: unknown
+    Status: not contacted
+
+18. IMMIGREAT Tanger
+    City: Tanger
+    Phone: +212 539 123 456
+    Address: Avenue Mohammed V, Tanger 90000
+    Email: unknown
+    Status: not contacted
+
+19. LIMAJ Immigration Tanger
+    City: Tanger
+    Phone: +212 661 069 228
+    Address: Tanger, Maroc
+    Email: unknown
+    Status: not contacted
+
+20. Migrow Abogados
+    City: Tanger
+    Phone: via WhatsApp or info@migrow.ma
+    Address: Angle Av. Fès et Rue Uruguay, Bureau 17, Tanger
+    Email: info@migrow.ma
+    Status: not contacted
