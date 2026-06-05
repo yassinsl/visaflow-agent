@@ -17,6 +17,41 @@ DOCUMENT_FIELDS = {
     "has_housing_proof": "housing_proof",
 }
 
+# Document name translations
+DOCUMENT_TRANSLATIONS = {
+    "ar": {
+        "birth_certificate": "شهادة الميلاد",
+        "bank_statements": "كشف حساب بنكي",
+        "acceptance_letter": "رسالة القبول",
+        "language_certificate": "شهادة اللغة",
+        "housing_proof": "إثبات السكن",
+        "employment_proof": "إثبات العمل",
+        "passport": "جواز السفر",
+        "work_contract": "عقد العمل",
+        "travel_insurance": "تأمين السفر",
+        "return_ticket": "تذكرة العودة",
+        "marriage_certificate": "عقد الزواج",
+        "sponsor_documents": "وثائق الكفيل",
+        "accommodation_proof": "إثبات الإقامة",
+    },
+    "fr": {
+        "birth_certificate": "acte de naissance",
+        "bank_statements": "relevés bancaires",
+        "acceptance_letter": "lettre d'acceptation",
+        "language_certificate": "certificat de langue",
+        "housing_proof": "justificatif de logement",
+        "employment_proof": "justificatif d'emploi",
+        "passport": "passeport",
+        "work_contract": "contrat de travail",
+        "travel_insurance": "assurance voyage",
+        "return_ticket": "billet de retour",
+        "marriage_certificate": "acte de mariage",
+        "sponsor_documents": "documents du garant",
+        "accommodation_proof": "justificatif d'hébergement",
+    },
+    "en": {},
+}
+
 # Map visa_type to case category
 VISA_TYPE_TO_CATEGORY = {
     "student": CaseCategory.STUDENT_VISA,
@@ -42,8 +77,8 @@ async def build_case_file(form: IntakeForm) -> CaseFile:
         visa_type=form.visa_type.value,
     )
 
-    # Extract detected language for multilingual support
-    detected_language = classification.get("language_detected", "en")
+    # Use language from form directly
+    language = form.language_preference.value
 
     # Step 2: Determine required documents based on visa type
     required_docs = get_required_documents(form.visa_type, form.destination_country)
@@ -85,11 +120,11 @@ async def build_case_file(form: IntakeForm) -> CaseFile:
         destination=form.destination_country,
         visa_type=form.visa_type.value,
         missing_documents=missing_documents,
-        language=detected_language,
+        language=language,
     )
 
     # Step 5: Determine recommended next step
-    next_step = _determine_next_step(missing_documents, detected_language)
+    next_step = _determine_next_step(missing_documents, language)
 
     return CaseFile(
         client_name=form.full_name,
@@ -124,12 +159,17 @@ def _generate_case_summary(
     Returns:
         A professional summary in the detected language.
     """
-    # Format missing documents
-    docs_list = ", ".join(missing_documents) if missing_documents else "none"
+    # Translate missing documents to the target language
+    translations = DOCUMENT_TRANSLATIONS.get(language, {})
+    if missing_documents:
+        translated_docs = [translations.get(doc, doc) for doc in missing_documents]
+        docs_list = ", ".join(translated_docs)
+    else:
+        docs_list = "none"
 
     # Language-specific templates
     templates = {
-        "fr": "{client_name} est un(e) ressortissant(e) {nationality} souhaitant obtenir un visa {visa_type} pour {destination}. Documents manquants: {missing_docs}. Veuillez rassembler ces documents avant de soumettre le dossier.",
+        "fr": "{client_name} est un(e) ressortissant(e) {nationality} souhaitant obtenir un visa {visa_type} pour {destination}. Documents manquants: {missing_docs}. Veuillez rassemblez ces documents avant de soumettre le dossier.",
         "ar": "{client_name} مواطن/ة من {nationality} يرغب في الحصول على تأشيرة {visa_type} إلى {destination}. الوثائق الناقصة: {missing_docs}. يرجى جمع هذه الوثائق قبل تقديم الملف.",
         "en": "{client_name} is a {nationality} national seeking a {visa_type} visa to {destination}. Missing documents: {missing_docs}. Please gather these documents before submitting the file.",
     }
