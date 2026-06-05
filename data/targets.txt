@@ -1,0 +1,72 @@
+# VisaFlow Agent — Target List
+# Immigration Agencies in Rabat + Casablanca
+
+1. Best Service Canada
+   City: Casablanca
+   Phone: +212 522 474 477
+   Address: 10 avenue 2 mars, 1er étage n°3
+   Email: unknown
+   Status: not contacted
+
+2. AOF Immigration Canada
+   City: Casablanca
+   Phone: +212 690 959 165
+   Address: Immeuble ATRIUM N374, Bd Abdelmoumen, 5ème étage
+   Email: unknown
+   Status: not contacted
+
+3. Accès Canada G&G
+   City: Casablanca
+   Phone: +212 522 362 403
+   Address: 269 Bd Mohamed Zerktouni, 3ème étage
+   Email: unknown
+   Status: not contacted
+
+4. Go-Canada
+   City: Casablanca
+   Phone: +212 522 986 986
+   Address: Bd Brahim Roudani, Rue de l'Atlas, Immeuble 45
+   Email: unknown
+   Status: not contacted
+
+5. Aube Conseil Canada
+   City: Casablanca
+   Phone: +212 522 250 424
+   Address: 149 Rue Oussama Ibn Zaid, 1er étage N°2
+   Email: unknown
+   Status: not contacted
+
+6. NewLife Canada
+   City: Casablanca
+   Phone: +212 608 445 508
+   Address: 295 Bd Abdelmoumen, Bureau D29
+   Email: unknown
+   Status: not contacted
+
+7. Projet Canada
+   City: Rabat
+   Phone: +212 661 396 949
+   Address: 14 Rue Ibn Hajar, Agdal
+   Email: unknown
+   Status: not contacted
+
+8. Bienvenue Canada Inc.
+   City: Rabat
+   Phone: +212 700 709 588
+   Address: Rue Al Majazir 808E, Akkari-Hassan
+   Email: unknown
+   Status: not contacted
+
+9. IMMIGREAT
+   City: Casablanca
+   Phone: +212 522 123 456
+   Address: Hassan II Boulevard
+   Email: unknown
+   Status: not contacted
+
+10. Sun Life Canada Maroc
+    City: Casablanca
+    Phone: +212 720 407 540
+    Address: Consultations in Casablanca
+    Email: unknown
+    Status: not contacted
