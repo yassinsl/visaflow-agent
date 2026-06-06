@@ -6,6 +6,26 @@ from datetime import date
 
 st.set_page_config(page_title="VisaFlow Agent", page_icon="🛂")
 
+# Document name translations (French)
+DOCUMENT_NAMES = {
+    "birth_certificate": "Acte de naissance",
+    "bank_statements": "Relevés bancaires",
+    "acceptance_letter": "Lettre d'acceptation",
+    "language_certificate": "Certificat de langue",
+    "housing_proof": "Justificatif de logement",
+    "employment_proof": "Justificatif d'emploi",
+    "work_contract": "Contrat de travail",
+    "travel_insurance": "Assurance voyage",
+    "return_ticket": "Billet de retour",
+    "passport": "Passeport",
+}
+
+
+def get_readable_doc_name(doc_id: str) -> str:
+    """Convert document ID to human-readable French name."""
+    return DOCUMENT_NAMES.get(doc_id, doc_id)
+
+
 st.title("VisaFlow Agent — Assistant Immigration IA")
 
 with st.form("intake_form"):
@@ -73,9 +93,7 @@ if submitted:
                 if response.status_code == 200:
                     result = response.json()
 
-                    st.success("Case file generated successfully!")
-
-                    st.markdown("### 📋 Case Result")
+                    st.markdown("### ✅ Dossier généré avec succès")
 
                     st.markdown("**Case Category:**")
                     st.info(result.get("case_category", "N/A"))
@@ -84,7 +102,8 @@ if submitted:
                     st.markdown("**Missing Documents:**")
                     if missing_docs:
                         for doc in missing_docs:
-                            st.write(f"• {doc}")
+                            readable_name = get_readable_doc_name(doc)
+                            st.write(f"• {readable_name}")
                     else:
                         st.write("None — all documents provided!")
 
