@@ -75,7 +75,7 @@ class IntakeForm(BaseModel):
     # Free text description of situation
     situation_description: str = Field(
         ...,
-        min_length=10,
+        min_length=3,
         description="Client describes their situation in French, Arabic, or English"
     )
 
