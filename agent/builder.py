@@ -78,14 +78,7 @@ VISA_TYPE_TO_CATEGORY = {
 
 
 async def build_case_file(form: IntakeForm) -> CaseFile:
-    """Build a complete case file from a validated intake form.
-
-    Args:
-        form: Validated IntakeForm object with client information.
-
-    Returns:
-        Complete CaseFile with all fields populated.
-    """
+    """Build complete case file from validated intake form."""
     # Use language from form directly
     language = form.language_preference.value
 
@@ -198,19 +191,7 @@ def _generate_case_summary(
     missing_documents: list[str],
     language: str = "en",
 ) -> str:
-    """Generate a case summary using Python templates.
-
-    Args:
-        client_name: Client's full name.
-        nationality: Client's nationality.
-        destination: Destination country.
-        visa_type: Type of visa.
-        missing_documents: List of missing document names.
-        language: Detected language (fr, ar, or en).
-
-    Returns:
-        A professional summary in the detected language.
-    """
+    """Generate case summary in client's language using template."""
     # Translate missing documents to the target language
     translations = DOCUMENT_TRANSLATIONS.get(language, {})
     if missing_documents:
@@ -238,15 +219,7 @@ def _generate_case_summary(
 
 
 def _determine_next_step(missing_documents: list[str], language: str = "en") -> str:
-    """Determine the recommended next step in the client's language.
-
-    Args:
-        missing_documents: List of missing document names.
-        language: Detected language (fr, ar, or en).
-
-    Returns:
-        Human-readable next step sentence in the detected language.
-    """
+    """Determine recommended next step based on missing documents."""
     # Multilingual next step messages
     next_step_messages = {
         "fr": {

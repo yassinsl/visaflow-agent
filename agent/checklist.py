@@ -42,16 +42,7 @@ REQUIRED_DOCUMENTS: dict[VisaType, tuple[str, ...]] = {
 def get_required_documents(
     visa_type: VisaType, destination_country: str
 ) -> list[str]:
-    """Get the list of required documents for a specific visa type and destination.
-
-    Args:
-        visa_type: The type of visa being applied for.
-        destination_country: The destination country (currently not used but
-            available for future country-specific logic).
-
-    Returns:
-        List of required document names for this visa category.
-    """
+    """Get required documents for a visa type and destination."""
     # Currently destination_country is not used, but kept as parameter
     # for future country-specific document requirements
     _ = destination_country  # Explicitly unused for now

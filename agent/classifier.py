@@ -1,4 +1,8 @@
-"""Case classifier using Claude API."""
+"""Case classifier using Claude API.
+
+Classifies immigration cases by analyzing the client's situation description
+and extracting key signals and detected language.
+"""
 
 import json
 import os
@@ -8,23 +12,7 @@ import anthropic
 
 
 async def classify_case(situation_description: str, visa_type: str) -> dict[str, Any]:
-    """Classify the immigration case based on the client's situation description.
-
-    Sends the situation description to Claude API which acts as an expert
-    immigration consultant to analyze and classify the case.
-
-    Args:
-        situation_description: Free text describing the client's situation
-            in French, Arabic, or English.
-        visa_type: The visa type from the intake form (student/work/family/tourist).
-
-    Returns:
-        A dictionary containing:
-        - detected_case_category: student, work, family_reunification, or tourist
-        -confidence: high, medium, or low
-        - key_signals: list of words/phrases that led to classification
-        - language_detected: fr, ar, or en
-    """
+    """Classify immigration case using Claude API based on situation description."""
     client = anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
 
     # Normalize visa_type to full category name - THIS IS THE PRIMARY SIGNAL

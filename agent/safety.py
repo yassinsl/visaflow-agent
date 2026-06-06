@@ -4,15 +4,7 @@ import re
 
 
 def check_safety(situation_description: str, language: str = "en") -> dict:
-    """Check if the situation description requires human consultant intervention.
-
-    Args:
-        situation_description: The client's free-text description of their situation.
-        language: The client's language preference (fr, ar, en).
-
-    Returns:
-        Dict with is_safe and redirect_message keys.
-    """
+    """Check if situation requires human consultant intervention."""
     redirect_messages = {
         "fr": "Cette question nécessite l'avis d'un consultant en immigration. Contactez directement votre conseiller.",
         "ar": "هذا السؤال يتطلب رأي مستشار متخصص. يرجى التواصل مع مستشارك مباشرة.",
