@@ -49,7 +49,21 @@ DOCUMENT_TRANSLATIONS = {
         "sponsor_documents": "documents du garant",
         "accommodation_proof": "justificatif d'hébergement",
     },
-    "en": {},
+    "en": {
+        "bank_statements": "bank statements",
+        "birth_certificate": "birth certificate",
+        "acceptance_letter": "acceptance letter",
+        "language_certificate": "language certificate",
+        "housing_proof": "housing proof",
+        "employment_proof": "employment proof",
+        "work_contract": "work contract",
+        "travel_insurance": "travel insurance",
+        "return_ticket": "return ticket",
+        "accommodation_proof": "accommodation proof",
+        "marriage_certificate": "marriage certificate",
+        "sponsor_documents": "sponsor documents",
+        "passport": "passport",
+    },
 }
 
 # Map visa_type to case category
