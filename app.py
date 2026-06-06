@@ -39,7 +39,7 @@ with st.form("intake_form"):
 
     situation_description = st.text_area(
         "Situation Description",
-        placeholder="Describe your situation in French, Arabic, or English...",
+        placeholder="Ex: Je veux étudier au Canada, ou I want to work in France...",
         height=150
     )
 
