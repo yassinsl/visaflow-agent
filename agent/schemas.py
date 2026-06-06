@@ -120,6 +120,10 @@ class CaseFile(BaseModel):
         default=False,
         description="Flag indicating if case has been reviewed by a human"
     )
+    safety_flag: bool = Field(
+        default=False,
+        description="Flag indicating case was flagged for safety and requires human consultant"
+    )
     created_at: datetime = Field(
         default_factory=datetime.now,
         description="Timestamp of when the case file was created"

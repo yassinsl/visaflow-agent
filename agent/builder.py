@@ -6,6 +6,7 @@ from datetime import datetime
 from agent.classifier import classify_case
 from agent.schemas import CaseFile, CaseCategory, IntakeForm
 from agent.checklist import get_required_documents
+from agent.safety import check_safety
 
 
 # Document field to name mapping
@@ -85,6 +86,23 @@ async def build_case_file(form: IntakeForm) -> CaseFile:
     Returns:
         Complete CaseFile with all fields populated.
     """
+    # Use language from form directly
+    language = form.language_preference.value
+
+    # Step 0: Safety check
+    safety_result = check_safety(form.situation_description, language)
+    if not safety_result["is_safe"]:
+        return CaseFile(
+            client_name=form.full_name,
+            visa_type=form.visa_type,
+            case_category=CaseCategory.OTHER,
+            missing_documents=[],
+            case_summary=safety_result["redirect_message"],
+            recommended_next_step="contact_consultant",
+            reviewed_by_human=False,
+            created_at=datetime.now(),
+        )
+
     # Step 1: Classify the case
     classification = await classify_case(
         situation_description=form.situation_description,
@@ -92,7 +110,7 @@ async def build_case_file(form: IntakeForm) -> CaseFile:
     )
 
     # Use language from form directly
-    language = form.language_preference.value
+    # (already set above)
 
     # Translation dictionaries
     NATIONALITY_TRANSLATIONS = {
