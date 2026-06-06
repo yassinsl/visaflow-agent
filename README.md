@@ -1,3 +1,12 @@
+---
+title: VisaFlow Agent
+emoji: 🛂
+colorFrom: blue
+colorTo: green
+sdk: docker
+pinned: false
+---
+
 # VisaFlow Agent
 
 AI-powered multilingual intake agent for immigration consultants.
