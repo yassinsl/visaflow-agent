@@ -140,3 +140,21 @@
     Address: Angle Av. Fès et Rue Uruguay, Bureau 17, Tanger
     Email: info@migrow.ma
     Status: not contacted
+
+21. Promax Management
+    City: Casablanca
+    Phone: +212 522 491 034
+    Email: canada@canadaimmigration.ma
+    Status: not contacted
+
+22. Alami Immigration Consultancy
+    City: Kenitra
+    Phone: +212 537 350 470
+    Email: infos@aiconsultancy.ca
+    Status: not contacted
+
+23. AllVisaCanada
+    City: Casablanca
+    Phone: +212 602 750 202
+    Email: contact@allvisacanada.com
+    Status: not contacted
