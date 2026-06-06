@@ -80,6 +80,26 @@ async def build_case_file(form: IntakeForm) -> CaseFile:
     # Use language from form directly
     language = form.language_preference.value
 
+    # Translation dictionaries
+    NATIONALITY_TRANSLATIONS = {
+        "ar": "مغربي",
+        "fr": "marocain(e)",
+        "en": "Moroccan"
+    }
+
+    VISA_TRANSLATIONS = {
+        "ar": {"student": "طالب", "work": "عمل",
+               "tourist": "سياحة", "family_reunification": "لم شمل"},
+        "fr": {"student": "étudiant", "work": "travail",
+               "tourist": "tourisme", "family_reunification": "regroupement familial"},
+        "en": {"student": "student", "work": "work",
+               "tourist": "tourist", "family_reunification": "family reunification"}
+    }
+
+    # Translate nationality and visa type
+    translated_nationality = NATIONALITY_TRANSLATIONS.get(language, form.nationality)
+    translated_visa = VISA_TRANSLATIONS.get(language, {}).get(form.visa_type.value, form.visa_type.value)
+
     # Step 2: Determine required documents based on visa type
     required_docs = get_required_documents(form.visa_type, form.destination_country)
 
@@ -116,9 +136,9 @@ async def build_case_file(form: IntakeForm) -> CaseFile:
     # Step 4: Generate case summary using Python template
     case_summary = _generate_case_summary(
         client_name=form.full_name,
-        nationality=form.nationality,
+        nationality=translated_nationality,
         destination=form.destination_country,
-        visa_type=form.visa_type.value,
+        visa_type=translated_visa,
         missing_documents=missing_documents,
         language=language,
     )
